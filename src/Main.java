@@ -6,7 +6,6 @@
 
 import java.io.*;
 import java.nio.file.Path;
-import java.util.ArrayList;
 
 public class Main {
     enum OperationMode {
@@ -18,6 +17,9 @@ public class Main {
     static String srcFile;
     static String destFile;
     static int key;
+    static final String ALPHABETS = "abcdefghijklmnopqrstuvwxyzабвгдеёжзийклмнопрстуфхцчшщъыьэюя";
+    static final int ABC1_LENGTH = 26;
+    static final int ABC2_LENGTH = ALPHABETS.length() - ABC1_LENGTH;
 
 
     public static void main(String[] args) {
@@ -54,26 +56,25 @@ public class Main {
     }
 
     private static String encodeString(String text) {
-        String alphabetStr = "abcdefghijklmnopqrstuvwxyzабвгдеёжзийклмнопрстуфхцчшщъыьэюя";
-        char[] alphabetArr = alphabetStr.toCharArray();
+        char[] alphabetArr = ALPHABETS.toCharArray();
         char[] textArr = text.toCharArray();
         StringBuilder stringBuilder = new StringBuilder();
 
         for (char symbol : textArr) {
             char temp = Character.toLowerCase(symbol);
             if (Character.isLetter(temp)) {
-                int i = alphabetStr.indexOf(temp);
-                if (i >= 0 && i <= 25) {
+                int i = ALPHABETS.indexOf(temp);
+                if (i >= 0 && i <= ABC1_LENGTH - 1) {
                     if (i + key < 0) {
-                        temp = alphabetArr[(i + key + 26)];
+                        temp = alphabetArr[(i + key + ABC1_LENGTH)];
                     } else {
-                        temp = alphabetArr[(i + key) % 26];
+                        temp = alphabetArr[(i + key) % ABC1_LENGTH];
                     }
-                } else if (i >= 26) {
-                    if (i + key < 26) {
-                        temp = alphabetArr[i + key + 33];
+                } else if (i >= ABC1_LENGTH) {
+                    if (i + key < ABC1_LENGTH) {
+                        temp = alphabetArr[i + key + ABC2_LENGTH];
                     } else {
-                        temp = alphabetArr[((i - 26 + key) % 33) + 26];
+                        temp = alphabetArr[((i - ABC1_LENGTH + key) % ABC2_LENGTH) + ABC1_LENGTH];
                     }
                 }
                 if (Character.isUpperCase(symbol)) {
