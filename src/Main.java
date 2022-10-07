@@ -14,20 +14,19 @@ public class Main {
         BRUTEFORCE
     }
 
-    static String srcFile;
-    static String destFile;
-    static int key;
     static final String ALPHABETS = "abcdefghijklmnopqrstuvwxyzабвгдеёжзийклмнопрстуфхцчшщъыьэюя";
     static final int ABC1_LENGTH = 26;
     static final int ABC2_LENGTH = ALPHABETS.length() - ABC1_LENGTH;
 
 
     public static void main(String[] args) {
-        checkStringArgs(args);
 
-        OperationMode mode = determineOperation(args[0]);
 
-        //operation = Operation.ENCODE;
+        OperationMode mode = OperationMode.valueOf(args[0].toUpperCase());
+        String srcFile = args[1];
+        int key = Integer.parseInt(args[2]);
+
+
         switch (mode) {
             case ENCODE -> encodeOrDecode(mode, srcFile, key);
             case DECODE -> encodeOrDecode(mode, srcFile, -key);
@@ -36,7 +35,7 @@ public class Main {
     }
 
     private static void encodeOrDecode(OperationMode mode, String srcFile, int key) {
-        destFile = resolveDestFilename(srcFile, mode);
+        String destFile = resolveDestFilename(srcFile, mode);
         try (FileReader reader = new FileReader(srcFile);
              StringWriter stringWriter = new StringWriter();
              FileWriter fileWriter = new FileWriter(destFile)) {
@@ -46,7 +45,7 @@ public class Main {
             while (reader.ready()) {
                 int real = reader.read(buffer);
                 stringWriter.write(buffer, 0, real);
-                encodedString = encodeString(stringWriter.toString());
+                encodedString = encodeString(stringWriter.toString(), key);
             }
             fileWriter.write(encodedString);
 
@@ -56,7 +55,7 @@ public class Main {
 
     }
 
-    private static String encodeString(String text) {
+    private static String encodeString(String text, int key) {
         char[] alphabetArr = ALPHABETS.toCharArray();
         char[] textArr = text.toCharArray();
         StringBuilder stringBuilder = new StringBuilder();
@@ -85,9 +84,7 @@ public class Main {
             stringBuilder.append(temp);
         }
 
-        //System.out.println(stringBuilder.toString());
-        String encryptedString = stringBuilder.toString();
-        return encryptedString;
+        return stringBuilder.toString();
     }
 
     private static String resolveDestFilename(String srcFile, OperationMode mode) {
@@ -109,21 +106,5 @@ public class Main {
         //TODO: bruteforce
     }
 
-    private static OperationMode determineOperation(String input) {
 
-        if (OperationMode.ENCODE.toString().equalsIgnoreCase(input)) {
-            return OperationMode.ENCODE;
-        } else if (OperationMode.DECODE.toString().equalsIgnoreCase(input)) {
-            return OperationMode.DECODE;
-        } else if (OperationMode.BRUTEFORCE.toString().equalsIgnoreCase(input)) {
-            return OperationMode.BRUTEFORCE;
-        }
-        return null;
-    }
-
-    private static void checkStringArgs(String[] args) {
-        // TODO: проверь все три параметра, проверь существование файла
-        Main.srcFile = args[1];
-        Main.key = Integer.parseInt(args[2]);
-    }
 }
