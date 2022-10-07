@@ -29,25 +29,26 @@ public class Main {
 
         //operation = Operation.ENCODE;
         switch (mode) {
-            case ENCODE -> encode(srcFile, key);
-            case DECODE -> encode(srcFile, -key);
+            case ENCODE -> encodeOrDecode(mode, srcFile, key);
+            case DECODE -> encodeOrDecode(mode, srcFile, -key);
             case BRUTEFORCE -> bruteforce();
         }
     }
 
-    private static void encode(String srcFile, int key) {
-        destFile = resolveDestFilename(srcFile, OperationMode.ENCODE);
+    private static void encodeOrDecode(OperationMode mode, String srcFile, int key) {
+        destFile = resolveDestFilename(srcFile, mode);
         try (FileReader reader = new FileReader(srcFile);
              StringWriter stringWriter = new StringWriter();
              FileWriter fileWriter = new FileWriter(destFile)) {
 
-            char[] buffer = new char[1024];
+            char[] buffer = new char[4096];
+            String encodedString = "";
             while (reader.ready()) {
                 int real = reader.read(buffer);
                 stringWriter.write(buffer, 0, real);
-                String encodedString = encodeString(stringWriter.toString());
-                fileWriter.write(encodedString);
+                encodedString = encodeString(stringWriter.toString());
             }
+            fileWriter.write(encodedString);
 
         } catch (IOException e) {
             e.printStackTrace();
