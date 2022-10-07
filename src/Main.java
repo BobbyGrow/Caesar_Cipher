@@ -1,0 +1,127 @@
+
+/*
+Шифр Цезаря
+*/
+
+
+import java.io.*;
+import java.nio.file.Path;
+import java.util.ArrayList;
+
+public class Main {
+    enum OperationMode {
+        ENCODE,
+        DECODE,
+        BRUTEFORCE
+    }
+
+    static String srcFile;
+    static String destFile;
+    static int key;
+
+
+    public static void main(String[] args) {
+        checkStringArgs(args);
+
+        OperationMode mode = determineOperation(args[0]);
+
+        //operation = Operation.ENCODE;
+        switch (mode) {
+            case ENCODE -> encode(srcFile, key);
+            case DECODE -> encode(srcFile, -key);
+            case BRUTEFORCE -> bruteforce();
+        }
+    }
+
+    private static void encode(String srcFile, int key) {
+        destFile = resolveDestFilename(srcFile, OperationMode.ENCODE);
+        try (FileReader reader = new FileReader(srcFile);
+             StringWriter stringWriter = new StringWriter();
+             FileWriter fileWriter = new FileWriter(destFile)) {
+
+            char[] buffer = new char[1024];
+            while (reader.ready()) {
+                int real = reader.read(buffer);
+                stringWriter.write(buffer, 0, real);
+                String encodedString = encodeString(stringWriter.toString());
+                fileWriter.write(encodedString);
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    private static String encodeString(String text) {
+        String alphabetStr = "abcdefghijklmnopqrstuvwxyzабвгдеёжзийклмнопрстуфхцчшщъыьэюя";
+        char[] alphabetArr = alphabetStr.toCharArray();
+        char[] textArr = text.toCharArray();
+        StringBuilder stringBuilder = new StringBuilder();
+
+        for (char symbol : textArr) {
+            char temp = Character.toLowerCase(symbol);
+            if (Character.isLetter(temp)) {
+                int i = alphabetStr.indexOf(temp);
+                if (i >= 0 && i <= 25) {
+                    if (i + key < 0) {
+                        temp = alphabetArr[(i + key + 26)];
+                    } else {
+                        temp = alphabetArr[(i + key) % 26];
+                    }
+                } else if (i >= 26) {
+                    if (i + key < 26) {
+                        temp = alphabetArr[i + key + 33];
+                    } else {
+                        temp = alphabetArr[((i - 26 + key) % 33) + 26];
+                    }
+                }
+                if (Character.isUpperCase(symbol)) {
+                    temp = Character.toUpperCase(temp);
+                }
+            }
+            stringBuilder.append(temp);
+        }
+
+        //System.out.println(stringBuilder.toString());
+        String encryptedString = stringBuilder.toString();
+        return encryptedString;
+    }
+
+    private static String resolveDestFilename(String srcFile, OperationMode mode) {
+        String pathString = Path.of(srcFile).getFileName().toString();
+        int pointLocation = pathString.lastIndexOf('.');
+        String filenameStr = pathString.substring(0, pointLocation);
+        String fileExtension = pathString.substring(pointLocation);
+
+        if (mode == OperationMode.ENCODE) {
+            filenameStr = filenameStr + "(encoded)" + fileExtension;
+        } else if (mode == OperationMode.DECODE) {
+            filenameStr = filenameStr + "(decoded)" + fileExtension;
+        }
+
+        return filenameStr;
+    }
+
+    private static void bruteforce() {
+        //TODO: bruteforce
+    }
+
+    private static OperationMode determineOperation(String input) {
+
+        if (OperationMode.ENCODE.toString().equalsIgnoreCase(input)) {
+            return OperationMode.ENCODE;
+        } else if (OperationMode.DECODE.toString().equalsIgnoreCase(input)) {
+            return OperationMode.DECODE;
+        } else if (OperationMode.BRUTEFORCE.toString().equalsIgnoreCase(input)) {
+            return OperationMode.BRUTEFORCE;
+        }
+        return null;
+    }
+
+    private static void checkStringArgs(String[] args) {
+        // TODO: проверь все три параметра, проверь существование файла
+        Main.srcFile = args[1];
+        Main.key = Integer.parseInt(args[2]);
+    }
+}
