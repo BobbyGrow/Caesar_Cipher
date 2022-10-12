@@ -4,9 +4,13 @@
 */
 
 
+import javax.crypto.spec.PSource;
+import javax.swing.plaf.IconUIResource;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.sql.SQLOutput;
+import java.util.HashMap;
 
 public class Main {
     enum Mode {
@@ -136,7 +140,29 @@ public class Main {
         return filenameStr;
     }
 
-    private static void bruteforce(String srcFile, String arg){
+    private static void bruteforce(String srcFile, String corpusFile) throws IOException {
+        HashMap<Character, Letter> corpusMap = StatResearch.getStats(corpusFile);
+        int minDiff = Integer.MAX_VALUE;
+        int secretKey = 0;
+
+        for (int i = 0; i < ALPHABETS.length(); i++) {
+            String encodedText = encodeFileToString(Mode.DECODE, srcFile, i * -1);
+            String decryptedFile = srcFile + "tmp";
+            writeCodeToFile(encodedText, decryptedFile);
+
+            HashMap<Character, Letter> sourceMap = StatResearch.getStats(decryptedFile);
+
+            int currentDiff = StatResearch.getFreqDiff(corpusMap, sourceMap);
+            if (currentDiff < minDiff) {
+                minDiff = currentDiff;
+                secretKey = i;
+            }
+        }
+        System.out.println(secretKey);
+        String encodedText = encodeFileToString(Mode.DECODE, srcFile, secretKey * -1);
+        writeCodeToFile(encodedText, srcFile.substring(0,srcFile.lastIndexOf(".txt"))+"(decoded key-" + secretKey + ").txt");
+
+//Files.copy(Path.of(srcFile + "tmp"), Path.of(srcFile.substring(0,srcFile.lastIndexOf(".txt"))+"(decoded key-" + secretKey + ").txt"));
 
     }
 
