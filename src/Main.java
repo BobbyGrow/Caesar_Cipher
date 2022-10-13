@@ -115,12 +115,14 @@ public class Main {
         return stringBuilder.toString();
     }
 
-    static void writeStringToFile(String text, String destFile) throws IOException {
+    // TODO: move to Service
+    static Path writeStringToFile(String text, String destFile) throws IOException {
         Path destFilePath = Path.of(destFile);
         if (Files.notExists(destFilePath)) {
             Files.createFile(destFilePath);
         }
-        Files.writeString(destFilePath, text, StandardCharsets.UTF_8, WRITE);
+        return Files.writeString(destFilePath, text, StandardCharsets.UTF_8, WRITE);
+
     }
 
     //todo remove this
@@ -129,7 +131,8 @@ public class Main {
         return key;
     }
 
-    static String addFilenameSuffix(String srcFile, Mode mode) {
+    // TODO: move to Service
+    static String addFilenameSuffix(String srcFile, Mode mode, int key) {
         int pointLocation = srcFile.lastIndexOf('.');
         String pathWithoutExt = srcFile.substring(0, pointLocation);
         String fileExtension = srcFile.substring(pointLocation);
@@ -138,7 +141,7 @@ public class Main {
         if (mode == Mode.ENCODE) {
             filename = pathWithoutExt + "(encoded)" + fileExtension;
 
-        } else {
+        } else if (mode == Mode.DECODE){
             int bracketLocation = srcFile.lastIndexOf('(');
             if (bracketLocation == -1) {
                 bracketLocation = pointLocation;
@@ -146,6 +149,8 @@ public class Main {
             pathWithoutExt = srcFile.substring(0, bracketLocation);
             fileExtension = srcFile.substring(pointLocation);
             filename = pathWithoutExt + "(decoded)" + fileExtension;
+        } else {
+            filename = pathWithoutExt + "(decoded key-" + key + ")" + fileExtension;
         }
 
         return filename;
@@ -153,32 +158,24 @@ public class Main {
 
     //todo: change this to work with the new logic
     private static void bruteforce(String srcFile, String corpusFile) throws IOException {
-        HashMap<Character, Letter> corpusMap = StatResearch.getStats(corpusFile);
-        int minDiff = Integer.MAX_VALUE;
-        int secretKey = 0;
 
-        for (int i = 0; i < ALPHABETS.length(); i++) {
-            String encodedText = encodeFileToString(Mode.DECODE, srcFile, i * -1);
-            String decryptedFile = srcFile + "tmp";
-            writeStringToFile(encodedText, decryptedFile);
+        HashMap<Character, Letter> corpusMap = StatResearch.getProfile(corpusFile);
+        int secretKey = StatResearch.findSecretKey(srcFile, corpusMap);
 
-            HashMap<Character, Letter> sourceMap = StatResearch.getStats(decryptedFile);
 
-            int currentDiff = StatResearch.getFreqDiff(corpusMap, sourceMap);
-            if (currentDiff < minDiff) {
-                minDiff = currentDiff;
-                secretKey = i;
-            }
-        }
-        System.out.println(secretKey);
-        String encodedText = encodeFileToString(Mode.DECODE, srcFile, secretKey * -1);
-        writeStringToFile(encodedText, srcFile.substring(0,srcFile.lastIndexOf(".txt"))+"(decoded key-" + secretKey + ").txt");
+        String encodedText = Files.readString(Path.of(srcFile));
+        String decodedText = EncodingEngine.encode(encodedText, secretKey * -1);
+        Path temp = writeStringToFile(decodedText, addFilenameSuffix(srcFile, Mode.BRUTEFORCE, secretKey));
+
+        //Files.move(temp, Path.of(temp.toString().substring(0,temp.toString().lastIndexOf(".txt"))+"(decoded key-" + secretKey + ").txt"));
+
+        //writeStringToFile(decodedText, srcFile.substring(0,srcFile.lastIndexOf(".txt"))+"(decoded key-" + secretKey + ").txt");
 
 //Files.copy(Path.of(srcFile + "tmp"), Path.of(srcFile.substring(0,srcFile.lastIndexOf(".txt"))+"(decoded key-" + secretKey + ").txt"));
 
     }
 
-
+    // TODO: move to Service
     private static void checkArgs(String[] args) throws IllegalArgumentException, IOException {
         if (args[0] == null || args[1] == null || args[2] == null) {
             throw new IllegalArgumentException("Неверное количество аргументов командной строки. Используй operation filePath key.");
@@ -201,6 +198,7 @@ public class Main {
         }
     }
 
+    // TODO: move to Service
     private static boolean isInteger(String str) {
         if (str == null) {
             return false;

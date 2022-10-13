@@ -1,7 +1,11 @@
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
+
+import static java.nio.file.StandardOpenOption.WRITE;
+
 
 public class StatResearch {
     public static HashMap<Character, Letter> initiateMap() {
@@ -12,7 +16,7 @@ public class StatResearch {
         return map;
     }
 
-    public static HashMap<Character, Letter> getStats(String filename) {
+    public static HashMap<Character, Letter> getProfile(String filename) {
         HashMap<Character, Letter> map = initiateMap();
         map = getAllChars(filename, map);
         map = normalise(map);
@@ -58,6 +62,36 @@ public class StatResearch {
             sum = sum + Math.abs(map1.get(key).frequency - map2.get(key).frequency);
         }
         return sum;
+    }
+
+    private static int getMaxABCLength() {
+        int max = -1;
+        for (String str : EncodingEngine.ABCs) {
+            if (str.length() > max) {
+                max = str.length();
+            }
+        }
+        return max;
+    }
+
+    public static int findSecretKey(String srcFile, HashMap<Character, Letter> corpusMap) throws IOException {
+        int minDiff = Integer.MAX_VALUE;
+        int secretKey = 0;
+        for (int i = 0; i < getMaxABCLength(); i++) {
+            String srcString = Files.readString(Path.of(srcFile));
+            String decodedText = EncodingEngine.encode(srcString, i * -1);
+            Path tempFile = Files.createTempFile("temp", ".tmp");
+            Files.writeString(tempFile, decodedText, StandardCharsets.UTF_8, WRITE);
+
+            HashMap<Character, Letter> sourceMap = getProfile(tempFile.toString());
+
+            int currentDiff = getFreqDiff(corpusMap, sourceMap);
+            if (currentDiff < minDiff) {
+                minDiff = currentDiff;
+                secretKey = i;
+            }
+        }
+        return secretKey;
     }
 }
 

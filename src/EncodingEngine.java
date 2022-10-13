@@ -5,20 +5,21 @@ import java.util.ArrayList;
 
 public class EncodingEngine {
 
-    private static final ArrayList<String> ABCs = new ArrayList<>();
+    static final ArrayList<String> ABCs = new ArrayList<>();
 
     static {
         ABCs.add("abcdefghijklmnopqrstuvwxyz");
         ABCs.add("абвгдеёжзийклмнопрстуфхцчшщъыьэюя");
     }
 
+    // TODO: get rid of mode argument
     public static void encode(Main.Mode mode, String srcFile, int key) throws IOException {
         String srcString = Files.readString(Path.of(srcFile));
         String encodedString = encode(srcString, key);
-        Main.writeStringToFile(encodedString, Main.addFilenameSuffix(srcFile, mode));
+        Main.writeStringToFile(encodedString, Main.addFilenameSuffix(srcFile, mode, 0));
     }
 
-    private static String encode(String srcStr, int key) {
+    public static String encode(String srcStr, int key) {
         StringBuilder result = new StringBuilder();
         char resultChar;
         char[] charArr = srcStr.toCharArray();
