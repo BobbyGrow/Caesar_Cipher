@@ -10,8 +10,12 @@ import static java.nio.file.StandardOpenOption.WRITE;
 public class StatResearch {
     public static HashMap<Character, Letter> initiateMap() {
         HashMap<Character, Letter> map = new HashMap<>();
-        for (char ch : Main.ALPHABETS.toCharArray()) {
-            map.put(ch, new Letter(0));
+
+        for (int i = 0; i < EncodingEngine.ABCs.size(); i++) {
+            for (int j = 0; j < EncodingEngine.ABCs.get(i).length(); j++) {
+                char ch = EncodingEngine.ABCs.get(i).charAt(j);
+                map.put(ch, new Letter(0));
+            }
         }
         return map;
     }

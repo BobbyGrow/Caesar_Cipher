@@ -4,9 +4,7 @@
 */
 
 
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -20,13 +18,6 @@ public class Main {
         DECODE,
         BRUTEFORCE
     }
-
-    //TODO: remove these
-    static final String ALPHABETS = "abcdefghijklmnopqrstuvwxyzабвгдеёжзийклмнопрстуфхцчшщъыьэюя";
-    static final int ABC1_LENGTH = 26;
-    static final int ABC2_LENGTH = ALPHABETS.length() - ABC1_LENGTH;
-
-
     public static void main(String[] args) throws IOException {
         checkArgs(args);
         Mode mode = Mode.valueOf(args[0].toUpperCase());
@@ -35,21 +26,13 @@ public class Main {
         switch (mode) {
             case ENCODE -> {
                 int key = Integer.parseInt(args[2]);
-                //TODO: uncomment either this:
                 EncodingEngine.encode(mode, srcFile, key);
 
-                //TODO: ...or this:
-                //String encodedText = encodeFileToString(mode, srcFile, key);
-                //String destFile = addFilenameSuffix(srcFile, mode);
-                //writeCodeToFile(encodedText, destFile);
             }
             case DECODE -> {
                 int key = Integer.parseInt(args[2]) * -1;
                 EncodingEngine.encode(mode, srcFile, key);
-                //TODO: remove this
-//                String encodedText = encodeFileToString(mode, srcFile, key);
-//                String destFile = addFilenameSuffix(srcFile, mode);
-//                writeStringToFile(encodedText, destFile);
+
             }
             case BRUTEFORCE -> {
                 String corpusFile = args[2];
@@ -58,77 +41,14 @@ public class Main {
         }
     }
 
-    //TODO: remove
-    private static String encodeFileToString(Mode mode, String srcFile, int key) {
-
-        try (FileReader reader = new FileReader(srcFile);
-             StringWriter stringWriter = new StringWriter()) {
-
-            char[] buffer = new char[4096];
-            String encodedText = "";
-            while (reader.ready()) {
-                int real = reader.read(buffer);
-                stringWriter.write(buffer, 0, real);
-                encodedText = encodePartOfFile(stringWriter.toString(), key);
-            }
-            return encodedText;
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return null;
-    }
-
-    //TODO: remove
-    private static String encodePartOfFile(String text, int key) {
-        char[] alphabetArr = ALPHABETS.toCharArray();
-        char[] textArr = text.toCharArray();
-        StringBuilder stringBuilder = new StringBuilder();
-
-        for (char symbol : textArr) {
-            char temp = Character.toLowerCase(symbol);
-            if (Character.isLetter(temp)) {
-                int i = ALPHABETS.indexOf(temp);
-                if (i >= 0 && i <= ABC1_LENGTH - 1) {
-                    int nKey = normalizeKey(key, ABC1_LENGTH);
-                    if (i + nKey < 0) {
-                        temp = alphabetArr[(i + nKey + ABC1_LENGTH)];
-                    } else {
-                        temp = alphabetArr[(i + nKey) % ABC1_LENGTH];
-                    }
-                } else if (i >= ABC1_LENGTH) {
-                    int nKey = normalizeKey(key, ABC2_LENGTH);
-                    if (i + nKey < ABC1_LENGTH) {
-                        temp = alphabetArr[i + nKey + ABC2_LENGTH];
-                    } else {
-                        temp = alphabetArr[((i - ABC1_LENGTH + nKey) % ABC2_LENGTH) + ABC1_LENGTH];
-                    }
-                }
-                if (Character.isUpperCase(symbol)) {
-                    temp = Character.toUpperCase(temp);
-                }
-            }
-            stringBuilder.append(temp);
-        }
-
-        return stringBuilder.toString();
-    }
-
     // TODO: move to Service
-    static Path writeStringToFile(String text, String destFile) throws IOException {
+    static void writeStringToFile(String text, String destFile) throws IOException {
         Path destFilePath = Path.of(destFile);
         if (Files.notExists(destFilePath)) {
             Files.createFile(destFilePath);
         }
-        return Files.writeString(destFilePath, text, StandardCharsets.UTF_8, WRITE);
+        Files.writeString(destFilePath, text, StandardCharsets.UTF_8, WRITE);
 
-    }
-
-    //todo remove this
-    private static int normalizeKey(int key, int length) {
-        key = key % length;
-        return key;
     }
 
     // TODO: move to Service
@@ -156,25 +76,15 @@ public class Main {
         return filename;
     }
 
-    //todo: change this to work with the new logic
     private static void bruteforce(String srcFile, String corpusFile) throws IOException {
 
         HashMap<Character, Letter> corpusMap = StatResearch.getProfile(corpusFile);
         int secretKey = StatResearch.findSecretKey(srcFile, corpusMap);
 
-
         String encodedText = Files.readString(Path.of(srcFile));
         String decodedText = EncodingEngine.encode(encodedText, secretKey * -1);
-        Path temp = writeStringToFile(decodedText, addFilenameSuffix(srcFile, Mode.BRUTEFORCE, secretKey));
-
-        //Files.move(temp, Path.of(temp.toString().substring(0,temp.toString().lastIndexOf(".txt"))+"(decoded key-" + secretKey + ").txt"));
-
-        //writeStringToFile(decodedText, srcFile.substring(0,srcFile.lastIndexOf(".txt"))+"(decoded key-" + secretKey + ").txt");
-
-//Files.copy(Path.of(srcFile + "tmp"), Path.of(srcFile.substring(0,srcFile.lastIndexOf(".txt"))+"(decoded key-" + secretKey + ").txt"));
-
+        writeStringToFile(decodedText, addFilenameSuffix(srcFile, Mode.BRUTEFORCE, secretKey));
     }
-
     // TODO: move to Service
     private static void checkArgs(String[] args) throws IllegalArgumentException, IOException {
         if (args[0] == null || args[1] == null || args[2] == null) {
@@ -197,7 +107,6 @@ public class Main {
             throw new IllegalArgumentException("Исходный файл пуст. Кодировать нечего.");
         }
     }
-
     // TODO: move to Service
     private static boolean isInteger(String str) {
         if (str == null) {
