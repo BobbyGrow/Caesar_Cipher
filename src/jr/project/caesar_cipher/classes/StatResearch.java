@@ -1,4 +1,4 @@
-package caesar_cipher.classes;
+package jr.project.caesar_cipher.classes;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;

@@ -1,6 +1,6 @@
-package caesar_cipher.classes;
+package jr.project.caesar_cipher.classes;
 
-import caesar_cipher.Main;
+import jr.project.caesar_cipher.Main;
 
 import java.io.IOException;
 import java.nio.file.Files;

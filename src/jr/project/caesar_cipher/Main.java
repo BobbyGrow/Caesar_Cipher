@@ -1,9 +1,9 @@
-package caesar_cipher;
+package jr.project.caesar_cipher;
 
-import caesar_cipher.classes.EncodingEngine;
-import caesar_cipher.classes.Letter;
-import caesar_cipher.classes.Service;
-import caesar_cipher.classes.StatResearch;
+import jr.project.caesar_cipher.classes.EncodingEngine;
+import jr.project.caesar_cipher.classes.Letter;
+import jr.project.caesar_cipher.classes.Service;
+import jr.project.caesar_cipher.classes.StatResearch;
 
 import java.io.IOException;
 import java.nio.file.Files;

@@ -1,4 +1,4 @@
-package caesar_cipher.classes;
+package jr.project.caesar_cipher.classes;
 public class Letter {
     int count;
     int frequency;
