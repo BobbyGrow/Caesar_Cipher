@@ -1,3 +1,7 @@
+package caesar_cipher.classes;
+
+import caesar_cipher.Main;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -7,7 +11,7 @@ import static java.nio.file.StandardOpenOption.WRITE;
 
 public class Service {
 
-    static void writeStringToFile(String text, String destFile) throws IOException {
+    public static void writeStringToFile(String text, String destFile) throws IOException {
         Path destFilePath = Path.of(destFile);
         if (Files.notExists(destFilePath)) {
             Files.createFile(destFilePath);
@@ -16,7 +20,7 @@ public class Service {
 
     }
 
-    static String addFilenameSuffix(String srcFile, Main.Mode mode, int key) {
+    public static String addFilenameSuffix(String srcFile, Main.Mode mode, int key) {
         int pointLocation = srcFile.lastIndexOf('.');
         String pathWithoutExt = srcFile.substring(0, pointLocation);
         String fileExtension = srcFile.substring(pointLocation);
@@ -40,7 +44,7 @@ public class Service {
         return filename;
     }
 
-    static void checkArgs(String[] args) throws IllegalArgumentException, IOException {
+    public static void checkArgs(String[] args) throws IllegalArgumentException, IOException {
         if (args[0] == null || args[1] == null || args[2] == null) {
             throw new IllegalArgumentException("Неверное количество аргументов командной строки. Используй operation filePath key.");
         } else if (Files.notExists(Path.of(args[1]))) {

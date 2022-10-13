@@ -1,3 +1,7 @@
+package caesar_cipher.classes;
+
+import caesar_cipher.Main;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;

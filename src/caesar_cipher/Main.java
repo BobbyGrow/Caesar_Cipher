@@ -1,8 +1,9 @@
+package caesar_cipher;
 
-/*
-Шифр Цезаря
-*/
-
+import caesar_cipher.classes.EncodingEngine;
+import caesar_cipher.classes.Letter;
+import caesar_cipher.classes.Service;
+import caesar_cipher.classes.StatResearch;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -10,7 +11,7 @@ import java.nio.file.Path;
 import java.util.HashMap;
 
 public class Main {
-    enum Mode {
+    public enum Mode {
         ENCODE,
         DECODE,
         BRUTEFORCE
