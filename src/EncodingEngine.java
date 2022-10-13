@@ -12,7 +12,6 @@ public class EncodingEngine {
         ABCs.add("абвгдеёжзийклмнопрстуфхцчшщъыьэюя");
     }
 
-    // TODO: get rid of mode argument
     public static void encode(Main.Mode mode, String srcFile, int key) throws IOException {
         String srcString = Files.readString(Path.of(srcFile));
         String encodedString = encode(srcString, key);

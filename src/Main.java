@@ -19,17 +19,14 @@ public class Main {
         Service.checkArgs(args);
         Mode mode = Mode.valueOf(args[0].toUpperCase());
         String srcFile = args[1];
+        int key = Integer.parseInt(args[2]);
 
         switch (mode) {
             case ENCODE -> {
-                int key = Integer.parseInt(args[2]);
                 EncodingEngine.encode(mode, srcFile, key);
-
             }
             case DECODE -> {
-                int key = Integer.parseInt(args[2]) * -1;
-                EncodingEngine.encode(mode, srcFile, key);
-
+                EncodingEngine.encode(mode, srcFile, key * -1);
             }
             case BRUTEFORCE -> {
                 String corpusFile = args[2];
