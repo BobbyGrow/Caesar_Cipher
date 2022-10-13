@@ -4,10 +4,15 @@
 */
 
 
-import java.io.*;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
+
+import static java.nio.file.StandardOpenOption.WRITE;
 
 public class Main {
     enum Mode {
@@ -29,22 +34,30 @@ public class Main {
         switch (mode) {
             case ENCODE -> {
                 int key = Integer.parseInt(args[2]);
-                String encodedText = encodeFileToString(mode, srcFile, key);
-                String destFile = addFilenameSuffix(srcFile, mode);
-                writeCodeToFile(encodedText, destFile);
+                //TODO: uncomment either this:
+                EncodingEngine.encode(mode, srcFile, key);
+
+                //TODO: ...or this:
+                //String encodedText = encodeFileToString(mode, srcFile, key);
+                //String destFile = addFilenameSuffix(srcFile, mode);
+                //writeCodeToFile(encodedText, destFile);
             }
             case DECODE -> {
                 int key = Integer.parseInt(args[2]) * -1;
-                String encodedText = encodeFileToString(mode, srcFile, key);
-                String destFile = addFilenameSuffix(srcFile, mode);
-                writeCodeToFile(encodedText, destFile);
+                EncodingEngine.encode(mode, srcFile, key);
+                //TODO: remove this
+//                String encodedText = encodeFileToString(mode, srcFile, key);
+//                String destFile = addFilenameSuffix(srcFile, mode);
+//                writeStringToFile(encodedText, destFile);
             }
             case BRUTEFORCE -> {
-                bruteforce(srcFile, args[2]);
+                String corpusFile = (args[2]).toString();
+                bruteforce(srcFile, corpusFile);
             }
         }
     }
 
+    //TODO: remove
     private static String encodeFileToString(Mode mode, String srcFile, int key) {
 
         try (FileReader reader = new FileReader(srcFile);
@@ -66,6 +79,7 @@ public class Main {
         return null;
     }
 
+    //TODO: remove
     private static String encodePartOfFile(String text, int key) {
         char[] alphabetArr = ALPHABETS.toCharArray();
         char[] textArr = text.toCharArray();
@@ -100,22 +114,21 @@ public class Main {
         return stringBuilder.toString();
     }
 
-    private static void writeCodeToFile(String encodedText, String destFile) {
-        try (FileWriter fileWriter = new FileWriter(destFile)) {
-
-            fileWriter.write(encodedText);
-
-        } catch (IOException e) {
-            e.printStackTrace();
+    static void writeStringToFile(String text, String destFile) throws IOException {
+        Path destFilePath = Path.of(destFile);
+        if (Files.notExists(destFilePath)) {
+            Files.createFile(destFilePath);
         }
+        Files.writeString(destFilePath, text, StandardCharsets.UTF_8, WRITE);
     }
 
+    //todo remove this
     private static int normalizeKey(int key, int length) {
         key = key % length;
         return key;
     }
 
-    private static String addFilenameSuffix(String srcFile, Mode mode) {
+    static String addFilenameSuffix(String srcFile, Mode mode) {
         //String pathString = Path.of(srcFile).getFileName().toString();
         int pointLocation = srcFile.lastIndexOf('.');
         String pathWithoutExt = srcFile.substring(0, pointLocation);
@@ -138,6 +151,7 @@ public class Main {
         return filename;
     }
 
+    //todo: change this to work with the new logic
     private static void bruteforce(String srcFile, String corpusFile) throws IOException {
         HashMap<Character, Letter> corpusMap = StatResearch.getStats(corpusFile);
         int minDiff = Integer.MAX_VALUE;
@@ -146,7 +160,7 @@ public class Main {
         for (int i = 0; i < ALPHABETS.length(); i++) {
             String encodedText = encodeFileToString(Mode.DECODE, srcFile, i * -1);
             String decryptedFile = srcFile + "tmp";
-            writeCodeToFile(encodedText, decryptedFile);
+            writeStringToFile(encodedText, decryptedFile);
 
             HashMap<Character, Letter> sourceMap = StatResearch.getStats(decryptedFile);
 
@@ -158,7 +172,7 @@ public class Main {
         }
         System.out.println(secretKey);
         String encodedText = encodeFileToString(Mode.DECODE, srcFile, secretKey * -1);
-        writeCodeToFile(encodedText, srcFile.substring(0,srcFile.lastIndexOf(".txt"))+"(decoded key-" + secretKey + ").txt");
+        writeStringToFile(encodedText, srcFile.substring(0,srcFile.lastIndexOf(".txt"))+"(decoded key-" + secretKey + ").txt");
 
 //Files.copy(Path.of(srcFile + "tmp"), Path.of(srcFile.substring(0,srcFile.lastIndexOf(".txt"))+"(decoded key-" + secretKey + ").txt"));
 
