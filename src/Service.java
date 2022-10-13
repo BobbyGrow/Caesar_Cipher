@@ -60,7 +60,7 @@ public class Service {
         } else if (Files.size(Path.of(args[1])) == 0) {
             throw new IllegalArgumentException("Исходный файл пуст. Кодировать нечего.");
         }
-    }// TODO: move to Service
+    }
 
     static boolean isInteger(String str) {
         if (str == null) {
