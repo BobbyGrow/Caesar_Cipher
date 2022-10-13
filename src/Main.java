@@ -4,12 +4,9 @@
 */
 
 
-import javax.crypto.spec.PSource;
-import javax.swing.plaf.IconUIResource;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.sql.SQLOutput;
 import java.util.HashMap;
 
 public class Main {
@@ -33,13 +30,13 @@ public class Main {
             case ENCODE -> {
                 int key = Integer.parseInt(args[2]);
                 String encodedText = encodeFileToString(mode, srcFile, key);
-                String destFile = resolveDestFilename(srcFile, mode);
+                String destFile = addFilenameSuffix(srcFile, mode);
                 writeCodeToFile(encodedText, destFile);
             }
             case DECODE -> {
                 int key = Integer.parseInt(args[2]) * -1;
                 String encodedText = encodeFileToString(mode, srcFile, key);
-                String destFile = resolveDestFilename(srcFile, mode);
+                String destFile = addFilenameSuffix(srcFile, mode);
                 writeCodeToFile(encodedText, destFile);
             }
             case BRUTEFORCE -> {
@@ -118,26 +115,27 @@ public class Main {
         return key;
     }
 
-    private static String resolveDestFilename(String srcFile, Mode mode) {
-        String pathString = Path.of(srcFile).getFileName().toString();
-        int pointLocation = pathString.lastIndexOf('.');
-        String filenameStr = pathString.substring(0, pointLocation);
-        String fileExtension = pathString.substring(pointLocation);
+    private static String addFilenameSuffix(String srcFile, Mode mode) {
+        //String pathString = Path.of(srcFile).getFileName().toString();
+        int pointLocation = srcFile.lastIndexOf('.');
+        String pathWithoutExt = srcFile.substring(0, pointLocation);
+        String fileExtension = srcFile.substring(pointLocation);
+        String filename;
 
         if (mode == Mode.ENCODE) {
-            filenameStr = filenameStr + "(encoded)" + fileExtension;
+            filename = pathWithoutExt + "(encoded)" + fileExtension;
 
-        } else if (mode == Mode.DECODE) {
-            int bracketLocation = pathString.lastIndexOf('(');
+        } else {
+            int bracketLocation = srcFile.lastIndexOf('(');
             if (bracketLocation == -1) {
                 bracketLocation = pointLocation;
             }
-            filenameStr = pathString.substring(0, bracketLocation);
-            fileExtension = pathString.substring(pointLocation);
-            filenameStr = filenameStr + "(decoded)" + fileExtension;
+            pathWithoutExt = srcFile.substring(0, bracketLocation);
+            fileExtension = srcFile.substring(pointLocation);
+            filename = pathWithoutExt + "(decoded)" + fileExtension;
         }
 
-        return filenameStr;
+        return filename;
     }
 
     private static void bruteforce(String srcFile, String corpusFile) throws IOException {
