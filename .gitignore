@@ -6,3 +6,5 @@ target/
 .idea/
 *.class
 *.txt
+out/
+src/META-INF/
