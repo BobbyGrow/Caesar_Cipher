@@ -1,5 +1,4 @@
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -28,7 +27,7 @@ public class EncodingEngine {
             resultChar = encode(ch, key);
             result.append(resultChar);
         }
-        
+
         return result.toString();
     }
 
@@ -65,11 +64,4 @@ public class EncodingEngine {
         return -1;
     }
 
-    private static ArrayList<String> readFileToStrings(String srcFile) {
-        try {
-            return (ArrayList<String>) Files.readAllLines(Path.of(srcFile), StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
 }

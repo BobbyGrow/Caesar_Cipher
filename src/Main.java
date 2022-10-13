@@ -21,6 +21,7 @@ public class Main {
         BRUTEFORCE
     }
 
+    //TODO: remove these
     static final String ALPHABETS = "abcdefghijklmnopqrstuvwxyzабвгдеёжзийклмнопрстуфхцчшщъыьэюя";
     static final int ABC1_LENGTH = 26;
     static final int ABC2_LENGTH = ALPHABETS.length() - ABC1_LENGTH;
@@ -51,7 +52,7 @@ public class Main {
 //                writeStringToFile(encodedText, destFile);
             }
             case BRUTEFORCE -> {
-                String corpusFile = (args[2]).toString();
+                String corpusFile = args[2];
                 bruteforce(srcFile, corpusFile);
             }
         }
@@ -129,7 +130,6 @@ public class Main {
     }
 
     static String addFilenameSuffix(String srcFile, Mode mode) {
-        //String pathString = Path.of(srcFile).getFileName().toString();
         int pointLocation = srcFile.lastIndexOf('.');
         String pathWithoutExt = srcFile.substring(0, pointLocation);
         String fileExtension = srcFile.substring(pointLocation);
